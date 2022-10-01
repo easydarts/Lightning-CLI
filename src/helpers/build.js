@@ -72,19 +72,21 @@ const copySupportFiles = folder => {
     const port = process.env.LNG_LIVE_RELOAD_PORT || 8991
     const file = path.join(folder, 'index.html')
     const data = fs.readFileSync(file, { encoding: 'utf8' })
+    // <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+
     const wsData = `
+      <script src="http://${host}:${port}/socket.io/socket.io.js"></script>
       <script>
-        var socket = new WebSocket('ws://${host}:${port}');
-        socket.addEventListener('open', function() {
+        const socket = io('ws://${host}:${port}');
+
+        socket.on('connect', function() {
           console.log('WebSocket connection successfully opened - live reload enabled');
         });
-        socket.addEventListener('close', function() {
+        socket.on('disconnect', function() {
           console.log('WebSocket connection closed - live reload disabled');
         });
-        socket.addEventListener('message', function(event) {
-          if(event.data === 'reload'){
-            document.location.reload();
-          }
+        socket.on('reload', function() {
+          document.location.reload();
         });
       </script>
     </body>`
